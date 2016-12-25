@@ -1,4 +1,5 @@
 #include "IFCJsonInteract.h"
+#include "IFCEngineInteract.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -48,8 +49,8 @@ void DumpIfcObjects2Json(const std::string& fileName)
 		//JsonIFCObject["ifcEntity"] = ifcObject->ifcEntity;
 		//noVertices
 		JsonIFCObject["noVertices"] = ifcObject->noVertices;
-		//vertices
-		for (int i = 0; i < ifcObject->noVertices; i++)
+		//vertices length = 6 * noVertices
+		for (int i = 0; i < 6 * ifcObject->noVertices; i++)
 		{
 			JsonIFCObject["vertices"].append(ifcObject->vertices[i]);
 		}
@@ -60,6 +61,7 @@ void DumpIfcObjects2Json(const std::string& fileName)
 		{
 			JsonIFCObject["indicesForFaces"].append(ifcObject->indicesForFaces[i]);
 		}
+		/*
 		//vertexOffsetForFaces
 		JsonIFCObject["vertexOffsetForFaces"] = ifcObject->vertexOffsetForFaces;
 		//indexOffsetForFaces
@@ -75,6 +77,7 @@ void DumpIfcObjects2Json(const std::string& fileName)
 		JsonIFCObject["vertexOffsetForWireFrame"] = ifcObject->vertexOffsetForWireFrame;
 		//indexOffsetForWireFrame
 		JsonIFCObject["indexOffsetForWireFrame"] = ifcObject->indexOffsetForWireFrame;
+		*/
 
 		root.append(JsonIFCObject);
 		ifcObject = ifcObject->next;
@@ -85,6 +88,8 @@ void DumpIfcObjects2Json(const std::string& fileName)
 	std::ofstream ofs;
 	ofs.open(fileName.c_str());
 	ofs << styledJsonFile;
+
+	CleanupIfcFile();
 
 	//std::string out = root.toStyledString();
 	//std::cout << out << std::endl;
