@@ -1,0 +1,47 @@
+IfcDistributionPort 水，电，空气，油料等的入口或出口
+http://www.buildingsmart-tech.org/ifc/IFC4/final/html/schema/ifcsharedbldgserviceelements/lexical/ifcdistributionport.htm
+
+IfcRelConnectsPortToElement port和IfcElement之间的联系
+http://www.buildingsmart-tech.org/ifc/IFC2x3/TC1/html/ifcproductextension/lexical/ifcrelconnectsporttoelement.htm
+
+IfcLocalPlacement 用于构建IfcProduct之间的局部坐标系
+http://www.buildingsmart-tech.org/ifc/IFC2x3/TC1/html/ifcgeometricconstraintresource/lexical/ifclocalplacement.htm
+
+IfcRelAssignsToGroup 定义IfcObject与IfcObject之间的从属关系
+http://www.buildingsmart-tech.org/ifc/review/IFC4Add1/beta/html/schema/ifckernel/lexical/ifcrelassignstogroup.htm
+
+IfcPresentationLayerAssignment 多个几何物体在某一层上 
+http://www.buildingsmart-tech.org/ifc/IFC2x4/rc2/html/schema/ifcpresentationorganizationresource/lexical/ifcpresentationlayerassignment.htm
+
+IfcDerivedUnitElement 单位，比如每平米受力
+http://www.buildingsmart-tech.org/ifc/IFC2x3/TC1/html/ifcmeasureresource/lexical/ifcderivedunitelement.htm
+
+IfcRelContainedInSpatialStructure 分配element到不同的层级
+http://www.buildingsmart-tech.org/ifc/IFC2x3/TC1/html/ifcproductextension/lexical/ifcrelcontainedinspatialstructure.htm
+
+IfcFlowTerminal 可用于机柜定义
+http://www.buildingsmart-tech.org/ifc/IFC2x4/rc2/html/schema/ifcsharedbldgserviceelements/lexical/ifcflowterminaltype.htm
+
+IfcRelAssociatesMaterial 材质相关
+http://iaiweb.lbl.gov/Resources/IFC_Releases/R2x3_final/ifcproductextension/lexical/ifcrelassociatesmaterial.htm
+
+
+以机柜为例:
+#34661= IFCFLOWTERMINAL('3KuQVjTrvCR9JuCewVbNQH',#41,'\X2\673A67DC\X0\-2200X800X600mm\X2\FF08\X0\A\X2\FF09\X0\:\X2\5C0F8425\X0\20302\X2\FF084EA65E847EBF673A67DCFF09\X0\:194254',$,'\X2\5C0F8425\X0\20302\X2\FF084EA65E847EBF673A67DCFF09\X0\',#34659,#34652,'194254');
+GUID:34661
+Object Placement: 34659
+#34659= IFCLOCALPLACEMENT(#136,#34658); 左边在#34658里
+#34658= IFCAXIS2PLACEMENT3D(#34656,$,$); 坐标在#34656里
+#34656= IFCCARTESIANPOINT((3591.04518707158,6058.40257238092,400.)); 这个是实际坐标
+机柜的内部组件：
+#34699= IFCPROPERTYSINGLEVALUE('\X2\4E2D95F4680F677F5BBD\X0\',$,IFCLENGTHMEASURE(560.),$);
+#34699 中间栏板宽 560.00 milli metre
+
+数据配线架（传输机柜)：
+#58012= IFCFLOWTERMINAL('3KuQVjTrvCR9JuCewVbNQG',#41,'\X2\6570636E914D7EBF67B6FF084F208F93673A67DCFF09\X0\:\X2\4F208F93673A67DC843D573065365BB976D8\X0\:194255',$,'\X2\4F208F93673A67DC843D573065365BB976D8\X0\',#58011,#58006,'194255');
+GUID: 58012
+
+
+机柜和数据配线架如何绑定：
+#76003= IFCRELCONTAINEDINSPATIALSTRUCTURE(
+
