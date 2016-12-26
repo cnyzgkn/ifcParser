@@ -29,6 +29,14 @@ wchar_t *char2wchar_t(const char* src)
 
 void DumpIfcObjects2Json(const std::string& fileName)
 {
+	//output "["
+	std::ofstream ofs;
+	ofs.open(fileName.c_str(), std::ios_base::trunc | std::ios_base::out);
+	ofs << "\[" << std::endl;
+	ofs.close();
+
+	//output ifcObject content
+	ofs.open(fileName.c_str(), std::ios_base::app | std::ios_base::out);
 
 	Json::Value root;
 	Json::FastWriter writer;
@@ -79,15 +87,25 @@ void DumpIfcObjects2Json(const std::string& fileName)
 		JsonIFCObject["indexOffsetForWireFrame"] = ifcObject->indexOffsetForWireFrame;
 		*/
 
-		root.append(JsonIFCObject);
 		ifcObject = ifcObject->next;
+
+		//root.append(JsonIFCObject);
+		std::string styledJsonIFCObject = JsonIFCObject.toStyledString();
+		//std::ofstream ofs;
+		//ofs.open(fileName.c_str(), std::ios_base::app | std::ios_base::out);
+		ofs << styledJsonIFCObject;
 	}
 
+	ofs << "\]" << std::endl;
+	ofs.close();
+
+	/*
 	//std::string json_file = writer.write(root);
 	std::string styledJsonFile = root.toStyledString();
 	std::ofstream ofs;
 	ofs.open(fileName.c_str());
 	ofs << styledJsonFile;
+	*/
 
 	CleanupIfcFile();
 
