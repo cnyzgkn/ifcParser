@@ -87,13 +87,15 @@ void DumpIfcObjects2Json(const std::string& fileName)
 		JsonIFCObject["indexOffsetForWireFrame"] = ifcObject->indexOffsetForWireFrame;
 		*/
 
-		ifcObject = ifcObject->next;
-
 		//root.append(JsonIFCObject);
 		std::string styledJsonIFCObject = JsonIFCObject.toStyledString();
 		//std::ofstream ofs;
 		//ofs.open(fileName.c_str(), std::ios_base::app | std::ios_base::out);
 		ofs << styledJsonIFCObject;
+		if (ifcObject->next != NULL)
+			ofs << "\," << std::endl;
+
+		ifcObject = ifcObject->next;
 	}
 
 	ofs << "\]" << std::endl;
