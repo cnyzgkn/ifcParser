@@ -68,8 +68,6 @@ void DumpIfcObjects2Json(const std::string& fileName)
 		for (int i = 0; i < 3 * ifcObject->noPrimitivesForFaces; i++)
 		{
 			JsonIFCObject["indicesForFaces"].append(ifcObject->indicesForFaces[i]);
-			if (ifcObject->indicesForFaces[i] > 1000000 && ifcObject->indicesForFaces[i] < -1000000)
-				std::cout << "ID == " << ifcObject->globalId << " type == " << ifcObject->ifcType << std::endl;
 		}
 		/*
 		//vertexOffsetForFaces
