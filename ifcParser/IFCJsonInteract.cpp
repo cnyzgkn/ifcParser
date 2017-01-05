@@ -27,16 +27,9 @@ wchar_t *char2wchar_t(const char* src)
 	return str;
 }
 
-void DumpIfcObjects2Json(const std::string& fileName)
+void DumpIfcObjects2SeperateJson(const std::string& fileName)
 {
-	//output "["
-	std::ofstream ofs;
-	ofs.open(fileName.c_str(), std::ios_base::trunc | std::ios_base::out);
-	ofs << "\[" << std::endl;
-	ofs.close();
-
-	//output ifcObject content
-	ofs.open(fileName.c_str(), std::ios_base::app | std::ios_base::out);
+	long int num = 1;
 
 	Json::Value root;
 	Json::FastWriter writer;
@@ -86,6 +79,90 @@ void DumpIfcObjects2Json(const std::string& fileName)
 		//indexOffsetForWireFrame
 		JsonIFCObject["indexOffsetForWireFrame"] = ifcObject->indexOffsetForWireFrame;
 		*/
+
+		root.append(JsonIFCObject);
+		if (num%50 == 0)
+		{
+			const std::string newFileName = fileName + std::to_string(num/50) + std::string(".json");
+			std::ofstream ofs;
+			ofs.open(newFileName.c_str(), std::ios_base::trunc | std::ios_base::out);
+			std::string styledJsonFile = root.toStyledString();
+			ofs << styledJsonFile;
+			ofs.close();
+			root.clear();
+		}
+		else if (ifcObject->next == NULL)
+		{
+			const std::string newFileName = fileName + std::to_string(num/50+1) + std::string(".json");
+			std::ofstream ofs;
+			ofs.open(newFileName.c_str(), std::ios_base::trunc | std::ios_base::out);
+			std::string styledJsonFile = root.toStyledString();
+			ofs << styledJsonFile;
+			ofs.close();
+			root.clear();
+		}
+
+		ifcObject = ifcObject->next;
+		++num;
+		std::cout << "mum == " << num << std::endl;
+	}
+
+	/*
+	//std::string json_file = writer.write(root);
+	std::string styledJsonFile = root.toStyledString();
+	std::ofstream ofs;
+	ofs.open(fileName.c_str());
+	ofs << styledJsonFile;
+	*/
+
+	CleanupIfcFile();
+
+	//std::string out = root.toStyledString();
+	//std::cout << out << std::endl;
+}
+
+void DumpIfcObjects2Json(const std::string& fileName)
+{
+	//output "["
+	std::ofstream ofs;
+	ofs.open(fileName.c_str(), std::ios_base::trunc | std::ios_base::out);
+	ofs << "\[" << std::endl;
+	ofs.close();
+
+	//output ifcObject content
+	ofs.open(fileName.c_str(), std::ios_base::app | std::ios_base::out);
+
+	Json::Value root;
+	Json::FastWriter writer;
+	STRUCT__IFC__OBJECT	* ifcObject = ifcObjectsLinkedList;
+	while (ifcObject) {
+		Json::Value JsonIFCObject;
+		//GUID
+		const char* strGUID = wchar_t2char(ifcObject->globalId);
+		JsonIFCObject["globalId"] = strGUID;
+		delete strGUID;
+		//Type
+		const char* strifcType = wchar_t2char(ifcObject->ifcType);
+		JsonIFCObject["ifcType"] = strifcType;
+		delete strifcType;
+		//Instance
+		//JsonIFCObject["ifcInstance"] = ifcObject->ifcInstance;
+		//Entity
+		//JsonIFCObject["ifcEntity"] = ifcObject->ifcEntity;
+		//noVertices
+		JsonIFCObject["noVertices"] = ifcObject->noVertices;
+		//vertices length = 6 * noVertices
+		for (int i = 0; i < 6 * ifcObject->noVertices; i++)
+		{
+			JsonIFCObject["vertices"].append(ifcObject->vertices[i]);
+		}
+		//noPrimitivesForFaces
+		JsonIFCObject["noPrimitivesForFaces"] = ifcObject->noPrimitivesForFaces;
+		//indicesForFaces length == 3 * ifcObject->noPrimitivesForFaces
+		for (int i = 0; i < 3 * ifcObject->noPrimitivesForFaces; i++)
+		{
+			JsonIFCObject["indicesForFaces"].append(ifcObject->indicesForFaces[i]);
+		}
 
 		//root.append(JsonIFCObject);
 		std::string styledJsonIFCObject = JsonIFCObject.toStyledString();

@@ -85,7 +85,8 @@ int main(int argc, char** argv)
 	delete[] xmlSettings_IFC4;
 	delete[] ifcFileName;
 
-	DumpIfcObjects2Json("result.json");
+	//DumpIfcObjects2Json("result.json");
+	DumpIfcObjects2SeperateJson("result");
 
 	return 1;
 }

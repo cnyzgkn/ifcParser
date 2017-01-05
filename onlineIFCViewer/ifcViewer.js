@@ -1,3 +1,5 @@
+
+
 var renderer;
 var stats;
 
@@ -154,4 +156,16 @@ function testOboe() {
    })
 }
 
-testOboe();
+//testOboe();
+
+function testJSONStream() {
+    //var JSONStream = require('JSONStream');
+
+    fs.createReadStream('myfile.json')
+    .pipe(JSONStream.parse('rows.*.doc'))
+    .on('data', function(doc) {
+    document.writeln[doc];
+    });
+}
+
+//testJSONStream();

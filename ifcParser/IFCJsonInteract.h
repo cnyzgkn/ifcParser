@@ -8,4 +8,6 @@ extern	STRUCT__IFC__OBJECT	* ifcObjectsLinkedList;
 
 void DumpIfcObjects2Json(const std::string& fileName);
 
+void DumpIfcObjects2SeperateJson(const std::string& fileName);
+
 #endif
