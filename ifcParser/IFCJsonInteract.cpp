@@ -62,9 +62,9 @@ void DumpIfcObjects2SeperateJson(const std::string& fileName)
 		{
 			JsonIFCObject["indicesForFaces"].append(ifcObject->indicesForFaces[i]);
 		}
-		/*
 		//vertexOffsetForFaces
 		JsonIFCObject["vertexOffsetForFaces"] = ifcObject->vertexOffsetForFaces;
+		/*
 		//indexOffsetForFaces
 		JsonIFCObject["indexOffsetForFaces"] = ifcObject->indexOffsetForFaces;
 		//noPrimitivesForWireFrame
@@ -79,11 +79,20 @@ void DumpIfcObjects2SeperateJson(const std::string& fileName)
 		//indexOffsetForWireFrame
 		JsonIFCObject["indexOffsetForWireFrame"] = ifcObject->indexOffsetForWireFrame;
 		*/
+		if (ifcObject->noPrimitivesForFaces) {
+			STRUCT_MATERIALS	* materials = ifcObject->materials;
+			while (materials) {
+				//g_pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, (int32_t)ifcObject->vertexOffsetForFaces, (int32_t)ifcObject->noVertices, (int32_t)materials->indexOffsetForFaces, (int32_t)materials->indexArrayPrimitives);
+				//JsonIFCObject["materials"].append(ifcObject->materials);
+				JsonIFCObject["materials"] = ifcObject->materials;
+				materials = materials->next;
+			}
+		}
 
 		root.append(JsonIFCObject);
-		if (num%50 == 0)
+		if (num%30 == 0)
 		{
-			const std::string newFileName = fileName + std::to_string(num/50) + std::string(".json");
+			const std::string newFileName = fileName + std::to_string(num/30) + std::string(".json");
 			std::ofstream ofs;
 			ofs.open(newFileName.c_str(), std::ios_base::trunc | std::ios_base::out);
 			std::string styledJsonFile = root.toStyledString();
@@ -93,7 +102,7 @@ void DumpIfcObjects2SeperateJson(const std::string& fileName)
 		}
 		else if (ifcObject->next == NULL)
 		{
-			const std::string newFileName = fileName + std::to_string(num/50+1) + std::string(".json");
+			const std::string newFileName = fileName + std::to_string(num/30+1) + std::string(".json");
 			std::ofstream ofs;
 			ofs.open(newFileName.c_str(), std::ios_base::trunc | std::ios_base::out);
 			std::string styledJsonFile = root.toStyledString();
