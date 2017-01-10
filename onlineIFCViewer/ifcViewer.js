@@ -1,7 +1,5 @@
-
-
 var renderer;
-var stats;
+//var stats;
 
 function initThree() {
     width = document.getElementById('canvas-frame').clientWidth;
@@ -13,19 +11,21 @@ function initThree() {
     document.getElementById('canvas-frame').appendChild(renderer.domElement);
     renderer.setClearColor(0xFFFFFF, 1.0);
 
+    /*
     stats = new Stats();
     stats.domElement.style.position = 'absolute';
     stats.domElement.style.left = '0px';
     stats.domElement.style.top = '0px';
     document.getElementById('canvas-frame').appendChild(stats.domElement);
+    */
 }
 
 var camera;
 function initCamera() {
     camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000000);
-    camera.position.x = 20000;
-    camera.position.y = 20000;
-    camera.position.z = 20000;
+    camera.position.x = 100000;
+    camera.position.y = 100000;
+    camera.position.z = 100000;
     camera.up.x = 1;
     camera.up.y = 1;
     camera.up.z = 1;
@@ -50,52 +50,131 @@ function initLight() {
 
 function initObjectfromJSON() {
     $.ajaxSettings.async = false; 
-    $.getJSON("result.json",function(json){
-        $.each(json, function(ifcObjectIndex, ifcObject){ 
-            if(ifcObject["noVertices"] !== 0)
-            {
-                var geometry = new THREE.Geometry();
-                
-                var noVertices = ifcObject["noVertices"];
-                var vertices = ifcObject["vertices"];
-                var indicesForFaces = ifcObject["indicesForFaces"];
-                var noPrimitivesForFaces = ifcObject["noPrimitivesForFaces"];
-                //vertices
-                for(let i = 0; i < noVertices; i++)
+    var num = 1;
+    var readJSON = true;
+    while(readJSON == true)
+    {
+        var fileName = "MeshJson/result" + num.toString() + ".json";
+        $.getJSON(fileName)
+        .done(function(json){
+            $.each(json, function(ifcObjectIndex, ifcObject){ 
+                if(ifcObject["noVertices"] !== 0)
                 {
-                    let x = vertices[6*i+0];
-                    let y = vertices[6*i+1];
-                    let z = vertices[6*i+2];
-                    var vertice = new THREE.Vector3(x, y, z);
-                    geometry.vertices.push(vertice);
+                    var geometry = new THREE.Geometry();
+                    
+                    var noVertices = ifcObject["noVertices"];
+                    var vertices = ifcObject["vertices"];
+                    var indicesForFaces = ifcObject["indicesForFaces"];
+                    var noPrimitivesForFaces = ifcObject["noPrimitivesForFaces"];
+                    //vertices
+                    for(let i = 0; i < noVertices; i++)
+                    {
+                        let x = vertices[6*i+0];
+                        let y = vertices[6*i+1];
+                        let z = vertices[6*i+2];
+                        var vertice = new THREE.Vector3(x, y, z);
+                        geometry.vertices.push(vertice);
+                    }
+
+                    //faces
+                    for(let i = 0; i < noPrimitivesForFaces; i++)
+                    {
+                        var face = new THREE.Face3(
+                            indicesForFaces[3*i+0],
+                            indicesForFaces[3*i+1],
+                            indicesForFaces[3*i+2]
+                            );
+                        geometry.faces.push(face);
+                    }
+
+                    for ( var i = 0; i < geometry.faces.length; i++ ) {
+                        geometry.faces[i].color.set(0xFF0000);
+                    }
+
+                    //calculate norm for lighting
+                    geometry.computeFaceNormals();
+                    geometry.computeVertexNormals();
+
+                    var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors} );
+                    var mesh = new THREE.Mesh( geometry,material);
+                    mesh.position = new THREE.Vector3(0,0,0);
+                    scene.add(mesh);
+                    
                 }
-
-                //faces
-                for(let i = 0; i < noPrimitivesForFaces; i++)
-                {
-                    var face = new THREE.Face3(
-                        indicesForFaces[3*i+0],
-                        indicesForFaces[3*i+1],
-                        indicesForFaces[3*i+2]
-                        );
-                    geometry.faces.push(face);
-                }
-
-                for ( var i = 0; i < geometry.faces.length; i++ ) {
-                    geometry.faces[i].color.set(0xFF0000);
-                }
-
-                //calculate norm for lighting
-                geometry.computeFaceNormals();
-                geometry.computeVertexNormals();
-
-                var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors} );
-                var mesh = new THREE.Mesh( geometry,material);
-                mesh.position = new THREE.Vector3(0,0,0);
-                scene.add(mesh);
-            }
+            });
+            num++;
+            //console.log("num == " + num)
+        })
+        .fail(function(jqXHR){
+            //alert(fileName + " doesn't exist!");
+            readJSON = false;
         });
-    });
+    }
+}
+
+function initObjectfromJSONLowMemory() {
+    $.ajaxSettings.async = false; 
+    var num = 1;
+    var readJSON = true;
+    while(readJSON == true)
+    {
+        var fileName = "MeshJson/result" + num.toString() + ".json";
+        $.getJSON(fileName)
+        .done(function(json){
+            $.each(json, function(ifcObjectIndex, ifcObject){ 
+                if(ifcObject["noVertices"] !== 0)
+                {
+                    var geometry = new THREE.Geometry();
+                    
+                    var noVertices = ifcObject["noVertices"];
+                    var vertices = ifcObject["vertices"];
+                    var indicesForFaces = ifcObject["indicesForFaces"];
+                    var noPrimitivesForFaces = ifcObject["noPrimitivesForFaces"];
+                    //vertices
+                    for(let i = 0; i < noVertices; i++)
+                    {
+                        let x = vertices[6*i+0];
+                        let y = vertices[6*i+1];
+                        let z = vertices[6*i+2];
+                        geometry.vertices.push(new THREE.Vector3(
+                            vertices[6*i+0],
+                            vertices[6*i+1],
+                            vertices[6*i+2])
+                        );
+                    }
+
+                    //faces
+                    for(let i = 0; i < noPrimitivesForFaces; i++)
+                    {
+                        geometry.faces.push(new THREE.Face3(
+                            indicesForFaces[3*i+0],
+                            indicesForFaces[3*i+1],
+                            indicesForFaces[3*i+2])
+                        );
+                    }
+
+                    for ( var i = 0; i < geometry.faces.length; i++ ) {
+                        geometry.faces[i].color.set(0xFF0000);
+                    }
+
+                    //calculate norm for lighting
+                    geometry.computeFaceNormals();
+                    geometry.computeVertexNormals();
+
+                    var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors} );
+                    var mesh = new THREE.Mesh( geometry,material);
+                    mesh.position = new THREE.Vector3(0,0,0);
+                    scene.add(mesh);       
+                }
+            });
+            num++;
+            //console.log("num == " + num)
+        })
+        .fail(function(jqXHR){
+            //alert(fileName + " doesn't exist!");
+            readJSON = false;
+        });
+    }
 }
 
 function threeStart() {
@@ -103,7 +182,8 @@ function threeStart() {
     initCamera();
     initScene();
     initLight();
-    initObjectfromJSON();
+    initObjectfromJSONLowMemory();
+    alert("initObjectfromJSON Done!")
     animation();
 }
 
@@ -127,19 +207,32 @@ function rotateProperty()
 function animation()
 {
     renderer.render(scene, camera);
-    requestAnimationFrame(animation);
-    stats.update();
+    //requestAnimationFrame(animation);
+    //stats.update();
 }
 
-//threeStart();
+threeStart();
 
 function testJSON() {
     $.ajaxSettings.async = false; 
-    $.getJSON("Jigui.json",function(json){
-        $.each(json, function(ifcObjectIndex, ifcObject){ 
-            document.writeln(ifcObject["globalId"])
+    var num = 1;
+    var readJSON = true;
+    while(readJSON == true)
+    {
+        var fileName = "MeshJson/result" + num.toString() + ".json";
+        $.getJSON(fileName)
+        .done(function(json){
+            $.each(json, function(ifcObjectIndex, ifcObject){ 
+                document.writeln(ifcObject["globalId"]);
+                //console.log(ifcObject["globalId"]);
+            });
+            num++;
+        })
+        .fail(function(jqXHR){
+            //alert(fileName + " doesn't exist!");
+            readJSON = false;
         });
-    });
+    }
 }
 
 //testJSON();
@@ -157,15 +250,3 @@ function testOboe() {
 }
 
 //testOboe();
-
-function testJSONStream() {
-    //var JSONStream = require('JSONStream');
-
-    fs.createReadStream('myfile.json')
-    .pipe(JSONStream.parse('rows.*.doc'))
-    .on('data', function(doc) {
-    document.writeln[doc];
-    });
-}
-
-//testJSONStream();
