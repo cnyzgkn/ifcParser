@@ -83,8 +83,10 @@ void DumpIfcObjects2SeperateJson(const std::string& fileName)
 			STRUCT_MATERIALS	* materials = ifcObject->materials;
 			while (materials) {
 				//g_pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, (int32_t)ifcObject->vertexOffsetForFaces, (int32_t)ifcObject->noVertices, (int32_t)materials->indexOffsetForFaces, (int32_t)materials->indexArrayPrimitives);
-				//JsonIFCObject["materials"].append(ifcObject->materials);
-				JsonIFCObject["materials"] = ifcObject->materials;
+				Json::Value JsonMaterials;
+				JsonMaterials["indexOffsetForFaces"] = materials->indexOffsetForFaces;
+				JsonMaterials["indexArrayPrimitives"] = materials->indexArrayPrimitives;
+				JsonIFCObject["materials"].append(JsonMaterials);
 				materials = materials->next;
 			}
 		}
