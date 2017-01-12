@@ -80,12 +80,43 @@ void DumpIfcObjects2SeperateJson(const std::string& fileName)
 		JsonIFCObject["indexOffsetForWireFrame"] = ifcObject->indexOffsetForWireFrame;
 		*/
 		if (ifcObject->noPrimitivesForFaces) {
-			STRUCT_MATERIALS	* materials = ifcObject->materials;
+			STRUCT_MATERIALS *materials = ifcObject->materials;
 			while (materials) {
 				//g_pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, (int32_t)ifcObject->vertexOffsetForFaces, (int32_t)ifcObject->noVertices, (int32_t)materials->indexOffsetForFaces, (int32_t)materials->indexArrayPrimitives);
 				Json::Value JsonMaterials;
-				JsonMaterials["indexOffsetForFaces"] = materials->indexOffsetForFaces;
-				JsonMaterials["indexArrayPrimitives"] = materials->indexArrayPrimitives;
+				JsonMaterials["indexArrayOffset"] = (int32_t)materials->indexArrayOffset;
+				JsonMaterials["indexArrayPrimitives"] = (int32_t)materials->indexArrayPrimitives;
+				STRUCT_MATERIAL *material = materials->material;
+				while (material) {
+					Json::Value JsonMaterial;
+					JsonMaterial["active"] = material->active;
+					//ambient
+					JsonMaterial["ambient_R"] = material->ambient.R;
+					JsonMaterial["ambient_G"] = material->ambient.G;
+					JsonMaterial["ambient_B"] = material->ambient.B;
+					JsonMaterial["ambient_A"] = material->ambient.A;
+					//diffuse
+					JsonMaterial["diffuse_R"] = material->diffuse.R;
+					JsonMaterial["diffuse_G"] = material->diffuse.G;
+					JsonMaterial["diffusevB"] = material->diffuse.B;
+					JsonMaterial["diffuse_A"] = material->diffuse.A;
+					//specular
+					JsonMaterial["specular_R"] = material->specular.R;
+					JsonMaterial["specular_G"] = material->specular.G;
+					JsonMaterial["specular_B"] = material->specular.B;
+					JsonMaterial["specular_A"] = material->specular.A;
+					//emissive
+					JsonMaterial["emissive_R"] = material->emissive.R;
+					JsonMaterial["emissive_G"] = material->emissive.G;
+					JsonMaterial["emissive_B"] = material->emissive.B;
+					JsonMaterial["emissive_A"] = material->emissive.A;
+					//
+					JsonMaterial["transparency"] = material->transparency;
+					JsonMaterial["shininess"] = material->shininess;
+					//
+					JsonMaterials["material"].append(JsonMaterial);
+					material = material->next;
+				}
 				JsonIFCObject["materials"].append(JsonMaterials);
 				materials = materials->next;
 			}
