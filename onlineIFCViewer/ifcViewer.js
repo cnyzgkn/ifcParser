@@ -23,9 +23,9 @@ function initThree() {
 var camera;
 function initCamera() {
     camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000000);
-    camera.position.x = 100000;
-    camera.position.y = 100000;
-    camera.position.z = 100000;
+    camera.position.x = 10000;
+    camera.position.y = 10000;
+    camera.position.z = 10000;
     camera.up.x = 1;
     camera.up.y = 1;
     camera.up.z = 1;
@@ -118,7 +118,7 @@ function initObjectfromJSONLowMemory() {
     var readJSON = true;
     while(readJSON == true)
     {
-        var fileName = "MeshJson/result" + num.toString() + ".json";
+        var fileName = "MeshJigui/result" + num.toString() + ".json";
         $.getJSON(fileName)
         .done(function(json){
             $.each(json, function(ifcObjectIndex, ifcObject){ 
@@ -161,6 +161,15 @@ function initObjectfromJSONLowMemory() {
                     geometry.computeFaceNormals();
                     geometry.computeVertexNormals();
 
+                    var JsonMaterials = ifcObject["materials"];
+                    //console.log(JsonMaterials.length);
+                    var materials = [];
+                    for(let i = 0; i < JsonMaterials.length; i++)
+                    {
+                        var indexArrayOffset = JsonMaterials[i]["indexArrayOffset"];
+                        var indexArrayPrimitives = JsonMaterials[i]["indexArrayPrimitives"];
+                    }
+
                     var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors} );
                     var mesh = new THREE.Mesh( geometry,material);
                     mesh.position = new THREE.Vector3(0,0,0);
@@ -183,7 +192,6 @@ function threeStart() {
     initScene();
     initLight();
     initObjectfromJSONLowMemory();
-    alert("initObjectfromJSON Done!")
     animation();
 }
 
