@@ -12,4 +12,5 @@ typedef struct CUSTOMVERTEX {
 	float	nz;
 }	customvertex;
 
+extern void FillMaterials2IfcObjects();
 #endif

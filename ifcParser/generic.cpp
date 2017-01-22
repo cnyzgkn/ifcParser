@@ -1,6 +1,5 @@
 ﻿#include "generic.h"
 
-
 bool	equals(wchar_t * txtI, wchar_t * txtII)
 {
 	int_t i = 0;

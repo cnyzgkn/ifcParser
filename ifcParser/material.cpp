@@ -1,8 +1,8 @@
 ﻿#include "material.h"
 #include <list>
-#include <iostream>
 #include "ifcengine\include\IFCEngine.h"
 #include "ifcengine\include\engine.h"
+#include "generic.h"
 
 #ifdef WIN64
 #define int_t int64_t
@@ -84,7 +84,6 @@ void	deleteMaterial(STRUCT_MATERIAL * material)
 		*next = material->next;
 
 	if (prev == NULL || next == NULL) {
-		//std::cout << "material->prev or material->next == NULL" << std::endl;
 	}
 
 	if (prev) {

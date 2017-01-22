@@ -4,6 +4,7 @@
 #include <fstream>
 #include <string>
 #include <locale>
+#include "generic.h"
 
 // need to delete the return char* pointer
 char *wchar_t2char(const wchar_t* src)
@@ -146,7 +147,7 @@ void DumpIfcObjects2SeperateJson(const std::string& fileName)
 
 		ifcObject = ifcObject->next;
 		++num;
-		std::cout << "mum == " << num << std::endl;
+		//std::cout << "mum == " << num << std::endl;
 	}
 
 	/*

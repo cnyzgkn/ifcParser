@@ -79,7 +79,7 @@
       <TargetMachine>MachineX86</TargetMachine>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>.\ifcengine\lib\x86\ifcengine.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>.\ifcengine\lib\x64\ifcengine.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

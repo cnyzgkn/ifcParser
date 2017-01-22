@@ -4,6 +4,7 @@
 #include <list>
 
 extern	bool	showFaces, showWireFrame, enableOnOver;
+extern	std::list<STRUCT_MATERIAL_VALUE*> mtrls;
 
 STRUCT__IFC__OBJECT	* highLightedIfcObject = nullptr;
 VECTOR3				vPickRayDir, vPickRayOrig;
@@ -493,7 +494,7 @@ void	FillVertexBuffers_ifcFaces(int_t * pVBuffSize, float * pVertices, VECTOR3 *
 }
 
 /*
-void	FillIndexBuffers_ifcFaces(int_t * pIBuffSize, int32_t * pIndices, D3DMATERIAL9 * mtrl)
+void	FillIndexBuffers_ifcFaces(int_t * pIBuffSize, int32_t * pIndices, STRUCT_MATERIAL_VALUE * mtrl)
 {
 	STRUCT__IFC__OBJECT	* ifcObject = ifcObjectsLinkedList;
 	while  (ifcObject) {
@@ -518,6 +519,33 @@ void	FillIndexBuffers_ifcFaces(int_t * pIBuffSize, int32_t * pIndices, D3DMATERI
 	}
 }
 */
+
+void	FillIndexBuffers_ifcFaces(STRUCT_MATERIAL_VALUE * mtrl)
+{
+	// each ifcObject has idential mtrl in this function
+	STRUCT_MATERIAL_VALUE materialValue(*mtrl);
+	
+	STRUCT__IFC__OBJECT	* ifcObject = ifcObjectsLinkedList;
+	while (ifcObject) {
+		int_t thisObjectOffsetForFaces = 0;
+		STRUCT_MATERIALS	* materials = ifcObject->materials;
+		while (materials) {
+			if (ifcObject->ifcInstance  &&  ifcObject->noVertices  &&  ifcObject->noPrimitivesForFaces  &&  materials->material->MTRL == mtrl) {
+				//sotre STRUCT_IFCOBJECT_MATERIAL informaiton in each ifcObject
+				STRUCT_IFCOBJECT_MATERIAL ifcObjectMaterial(
+					materials->indexArrayPrimitives,
+					thisObjectOffsetForFaces,
+					materialValue);
+
+				thisObjectOffsetForFaces += 3 * (int_t)materials->indexArrayPrimitives;
+				ifcObject->ifcObjectMaterialsVector.push_back(ifcObjectMaterial);
+			}
+			materials = materials->next;
+		}
+		ifcObject = ifcObject->next;
+	}
+}
+
 
 void	FillBuffers_ifcWireFrame(int_t * pVBuffSize, int_t * pIBuffSize, float * pVertices, int32_t * pIndices, VECTOR3 * center, double size)
 {
@@ -547,6 +575,39 @@ void	FillBuffers_ifcWireFrame(int_t * pVBuffSize, int_t * pIBuffSize, float * pV
 	}
 }
 
+void FillMaterials2IfcObjects()
+{
+	if (ifcObjectsLinkedList) {
+		VECTOR3	min, max;
+		bool			initSizes = false;
+		GetDimensions(&min, &max, &initSizes);
+
+		if (initSizes) {
+			center.x = (max.x + min.x) / 2;
+			center.y = (max.y + min.y) / 2;
+			center.z = (max.z + min.z) / 2;
+			size = max.x - min.x;
+			if (size < max.y - min.y) { size = max.y - min.y; }
+			if (size < max.z - min.z) { size = max.z - min.z; }
+
+			int_t	vBuffSize = 0, iBuffSize = 0, tmpVBuffSize = 0;
+			GetBufferSizes_ifcFaces(&vBuffSize, &iBuffSize);
+			tmpVBuffSize = vBuffSize;
+			vBuffSize = 0;
+			GetBufferSizes_ifcWireFrame(&vBuffSize, &iBuffSize);
+
+			AdjustMinMax(&center, size);
+
+			//FillVertexBuffers_ifcFaces(&vertexCnt, pVerticesDeviceBuffer, &center, size);
+			//FillIndexBuffers_ifcFaces(0);
+			for (std::list<STRUCT_MATERIAL_VALUE*>::iterator it = mtrls.begin(); it != mtrls.end(); ++it) {
+				FillIndexBuffers_ifcFaces((*it));
+			}
+			//vertexCnt = 0;
+			//FillBuffers_ifcWireFrame(&vertexCnt, &indexCnt, pVerticesDeviceBuffer, pIndicesDeviceBuffer, &center, size);
+		}
+	}
+}
 
 /*
 void CRightPane::InitializeDeviceBuffer()
@@ -605,7 +666,7 @@ void CRightPane::InitializeDeviceBuffer()
 
 				FillVertexBuffers_ifcFaces(&vertexCnt, pVerticesDeviceBuffer, &center, size);
 				FillIndexBuffers_ifcFaces(&indexCnt, pIndicesDeviceBuffer, 0);
-				for  (std::list<D3DMATERIAL9*>::iterator it=mtrls.begin() ; it != mtrls.end(); ++it) {
+				for  (std::list<STRUCT_MATERIAL_VALUE*>::iterator it=mtrls.begin() ; it != mtrls.end(); ++it) {
 					FillIndexBuffers_ifcFaces(&indexCnt, pIndicesDeviceBuffer, (*it));
 				}
 				vertexCnt = 0;
@@ -648,7 +709,7 @@ long long	vertexOffsetForFaces,
 			indexOffsetForFaces,
 			noPrimitivesForFaces;
 
-void	CRightPane::RenderFaces(D3DMATERIAL9 * mtrl)
+void	CRightPane::RenderFaces(STRUCT_MATERIAL_VALUE * mtrl)
 {
 	STRUCT__IFC__OBJECT	* ifcObject = ifcObjectsLinkedList;
 	while	(ifcObject) {
@@ -779,7 +840,7 @@ void	CRightPane::Render()
 				//	First the non-transparent faces
 				//
 
-				for  (std::list<D3DMATERIAL9*>::iterator it=mtrls.begin() ; it != mtrls.end(); ++it) {
+				for  (std::list<STRUCT_MATERIAL_VALUE*>::iterator it=mtrls.begin() ; it != mtrls.end(); ++it) {
 					if	((*it)->Ambient.a == 1) {
 						g_pd3dDevice->SetMaterial(*it);
 						RenderFaces(*it);
@@ -798,7 +859,7 @@ void	CRightPane::Render()
 				//
 				//	Now the transparant faces
 				//
-				for  (std::list<D3DMATERIAL9*>::iterator it=mtrls.begin() ; it != mtrls.end(); ++it) {
+				for  (std::list<STRUCT_MATERIAL_VALUE*>::iterator it=mtrls.begin() ; it != mtrls.end(); ++it) {
 					if	((*it)->Ambient.a < 1) {
 						g_pd3dDevice->SetMaterial(*it);
 						RenderFaces(*it);

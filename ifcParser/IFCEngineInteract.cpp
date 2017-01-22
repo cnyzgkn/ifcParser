@@ -6,7 +6,9 @@
 #include <iostream>
 #include <string>
 
+std::list<STRUCT_MATERIAL_VALUE*> mtrls;
 extern	STRUCT_MATERIAL	* firstMaterial;
+extern	std::list<STRUCT_MATERIAL_VALUE*> mtrls;
 
 char *ifcFileName = 0, *ifcSchemaName_IFC2x3 = 0, *ifcSchemaName_IFC4 = 0, *xmlSettings_IFC2x3 = 0, *xmlSettings_IFC4 = 0;
 
@@ -591,6 +593,75 @@ void	CleanupIfcFile()
 	}
 }
 
+/*
+// old finalizeMaterial() from ifcViewer
+void	finalizeMaterial()
+{
+	STRUCT_MATERIAL	* material = firstMaterial;
+
+	int	arraySize = 0;
+	while (material) {
+		arraySize++;
+		material = material->next;
+	}
+
+	material = firstMaterial;
+	while (material) {
+		ASSERT(material->active);
+
+		ASSERT(material->MTRL == 0);
+		material->MTRL = (void *) new STRUCT_MATERIAL_VALUE;
+
+		((STRUCT_MATERIAL_VALUE *)material->MTRL)->Ambient.r = material->ambient.R;
+		((STRUCT_MATERIAL_VALUE *)material->MTRL)->Ambient.g = material->ambient.G;
+		((STRUCT_MATERIAL_VALUE *)material->MTRL)->Ambient.b = material->ambient.B;
+		((STRUCT_MATERIAL_VALUE *)material->MTRL)->Ambient.a = (float)material->transparency;
+		((STRUCT_MATERIAL_VALUE *)material->MTRL)->Diffuse.r = material->diffuse.R;
+		((STRUCT_MATERIAL_VALUE *)material->MTRL)->Diffuse.g = material->diffuse.G;
+		((STRUCT_MATERIAL_VALUE *)material->MTRL)->Diffuse.b = material->diffuse.B;
+		((STRUCT_MATERIAL_VALUE *)material->MTRL)->Diffuse.a = (float)material->transparency;
+		((STRUCT_MATERIAL_VALUE *)material->MTRL)->Specular.r = material->specular.R;
+		((STRUCT_MATERIAL_VALUE *)material->MTRL)->Specular.g = material->specular.G;
+		((STRUCT_MATERIAL_VALUE *)material->MTRL)->Specular.b = material->specular.B;
+		((STRUCT_MATERIAL_VALUE *)material->MTRL)->Specular.a = (float)material->transparency;
+		((STRUCT_MATERIAL_VALUE *)material->MTRL)->Emissive.r = material->ambient.R / 2;
+		((STRUCT_MATERIAL_VALUE *)material->MTRL)->Emissive.g = material->ambient.G / 2;
+		((STRUCT_MATERIAL_VALUE *)material->MTRL)->Emissive.b = material->ambient.B / 2;
+		((STRUCT_MATERIAL_VALUE *)material->MTRL)->Emissive.a = (float)material->transparency / 2;
+		((STRUCT_MATERIAL_VALUE *)material->MTRL)->Power = 0.5;
+
+		mtrls.push_back((STRUCT_MATERIAL_VALUE *)material->MTRL);
+		material = material->next;
+	}
+}
+*/
+
+//mtrls stores exactly the correct value 
+void finalizeMaterial()
+{
+	STRUCT_MATERIAL	* material = firstMaterial;
+
+	int	arraySize = 0;
+	while (material) {
+		arraySize++;
+		material = material->next;
+	}
+
+	material = firstMaterial;
+	while (material) {
+		material->MTRL = new STRUCT_MATERIAL_VALUE;
+
+		material->MTRL->ambient = material->ambient;
+		material->MTRL->diffuse = material->diffuse;
+		material->MTRL->specular = material->specular;
+		material->MTRL->emissive = material->emissive;
+		material->MTRL->shininess = material->shininess;
+		material->MTRL->transparency = material->transparency;
+
+		mtrls.push_back(material->MTRL);
+		material = material->next;
+	}
+}
 
 bool	ParseIfcFile()
 {
@@ -674,7 +745,7 @@ bool	ParseIfcFile()
 
 			GenerateGeometryNestedCall(ifcModel, 80);
 
-			//finalizeMaterial();
+			finalizeMaterial();
 
 			CreateTreeItem_ifcProject(ifcModel, &baseTreeItem);
 

@@ -3,7 +3,7 @@
 
 #include "ifcengine/include/engdef.h"
 #include "unit.h"
-
+#include <vector>
 
 #define		STRUCT_TYPE_MATERIAL				200
 #define		STRUCT_TYPE_OBJECT_COLOR			201
@@ -20,7 +20,7 @@ struct STRUCT__SIUNIT;
 
 
 struct STRUCT_MATERIALS;
-
+struct STRUCT_IFCOBJECT_MATERIAL;
 
 typedef struct VECTOR3 {
 	double							x;
@@ -60,14 +60,16 @@ struct STRUCT__IFC__OBJECT {
 	float							* vertices;
 
 	int_t							noPrimitivesForFaces;
-	int32_t							* indicesForFaces;
+	int_t							* indicesForFaces;
 	int_t							vertexOffsetForFaces;
 	int_t							indexOffsetForFaces;
 
 	int_t							noPrimitivesForWireFrame;
-	int32_t							* indicesForLinesWireFrame;
+	int_t							* indicesForLinesWireFrame;
 	int_t							vertexOffsetForWireFrame;
 	int_t							indexOffsetForWireFrame;
+
+	std::vector<STRUCT_IFCOBJECT_MATERIAL>      ifcObjectMaterialsVector;
 };
 
 struct STRUCT__SELECTABLE__TREEITEM {
@@ -91,7 +93,7 @@ struct STRUCT__SELECTABLE__TREEITEM {
 	//HTREEITEM						hTreeItem;
 
 	wchar_t							* nameBuffer;
-	int32_t							select;
+	int_t							select;
 	
 	STRUCT__HEADER__SET				* headerSet;
 	STRUCT__IFC__OBJECT				* ifcObject;

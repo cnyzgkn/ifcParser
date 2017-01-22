@@ -79,6 +79,8 @@ int main(int argc, char** argv)
 
 	ParseIfcFile();
 
+	FillMaterials2IfcObjects();
+
 	delete[] ifcSchemaName_IFC2x3;
 	delete[] ifcSchemaName_IFC4;
 	delete[] xmlSettings_IFC2x3;
