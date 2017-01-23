@@ -4,6 +4,7 @@
 #include <fstream>
 #include <string>
 #include <locale>
+#include <vector>
 #include "generic.h"
 
 // need to delete the return char* pointer
@@ -81,45 +82,40 @@ void DumpIfcObjects2SeperateJson(const std::string& fileName)
 		JsonIFCObject["indexOffsetForWireFrame"] = ifcObject->indexOffsetForWireFrame;
 		*/
 		if (ifcObject->noPrimitivesForFaces) {
-			STRUCT_MATERIALS *materials = ifcObject->materials;
-			while (materials) {
-				//g_pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, (int32_t)ifcObject->vertexOffsetForFaces, (int32_t)ifcObject->noVertices, (int32_t)materials->indexOffsetForFaces, (int32_t)materials->indexArrayPrimitives);
-				Json::Value JsonMaterials;
-				JsonMaterials["indexArrayOffset"] = (int32_t)materials->indexArrayOffset;
-				JsonMaterials["indexArrayPrimitives"] = (int32_t)materials->indexArrayPrimitives;
-				STRUCT_MATERIAL *material = materials->material;
-				while (material) {
-					Json::Value JsonMaterial;
-					JsonMaterial["active"] = material->active;
-					//ambient
-					JsonMaterial["ambient_R"] = material->ambient.R;
-					JsonMaterial["ambient_G"] = material->ambient.G;
-					JsonMaterial["ambient_B"] = material->ambient.B;
-					JsonMaterial["ambient_A"] = material->ambient.A;
-					//diffuse
-					JsonMaterial["diffuse_R"] = material->diffuse.R;
-					JsonMaterial["diffuse_G"] = material->diffuse.G;
-					JsonMaterial["diffusevB"] = material->diffuse.B;
-					JsonMaterial["diffuse_A"] = material->diffuse.A;
-					//specular
-					JsonMaterial["specular_R"] = material->specular.R;
-					JsonMaterial["specular_G"] = material->specular.G;
-					JsonMaterial["specular_B"] = material->specular.B;
-					JsonMaterial["specular_A"] = material->specular.A;
-					//emissive
-					JsonMaterial["emissive_R"] = material->emissive.R;
-					JsonMaterial["emissive_G"] = material->emissive.G;
-					JsonMaterial["emissive_B"] = material->emissive.B;
-					JsonMaterial["emissive_A"] = material->emissive.A;
-					//
-					JsonMaterial["transparency"] = material->transparency;
-					JsonMaterial["shininess"] = material->shininess;
-					//
-					JsonMaterials["material"].append(JsonMaterial);
-					material = material->next;
-				}
-				JsonIFCObject["materials"].append(JsonMaterials);
-				materials = materials->next;
+			std::vector<STRUCT_IFCOBJECT_MATERIAL> ifcObjectMaterialsVector = ifcObject->ifcObjectMaterialsVector;
+			for(auto IfcObjectMaterial : ifcObjectMaterialsVector)
+			{
+				Json::Value JsonIfcObjectMaterial;
+				JsonIfcObjectMaterial["indexOffsetForFaces"] = IfcObjectMaterial.indexOffsetForFaces;
+				JsonIfcObjectMaterial["indexArrayPrimitives"] = IfcObjectMaterial.indexArrayPrimitives;
+				STRUCT_MATERIAL_VALUE materialValue = IfcObjectMaterial.materialValue;
+				Json::Value JsonMaterialValue;	
+				//ambient
+				JsonMaterialValue["ambient_R"] = materialValue.ambient.R;
+				JsonMaterialValue["ambient_G"] = materialValue.ambient.G;
+				JsonMaterialValue["ambient_B"] = materialValue.ambient.B;
+				JsonMaterialValue["ambient_A"] = materialValue.ambient.A;
+				//diffuse
+				JsonMaterialValue["diffuse_R"] = materialValue.diffuse.R;
+				JsonMaterialValue["diffuse_G"] = materialValue.diffuse.G;
+				JsonMaterialValue["diffusevB"] = materialValue.diffuse.B;
+				JsonMaterialValue["diffuse_A"] = materialValue.diffuse.A;
+				//specular
+				JsonMaterialValue["specular_R"] = materialValue.specular.R;
+				JsonMaterialValue["specular_G"] = materialValue.specular.G;
+				JsonMaterialValue["specular_B"] = materialValue.specular.B;
+				JsonMaterialValue["specular_A"] = materialValue.specular.A;
+				//emissive
+				JsonMaterialValue["emissive_R"] = materialValue.emissive.R;
+				JsonMaterialValue["emissive_G"] = materialValue.emissive.G;
+				JsonMaterialValue["emissive_B"] = materialValue.emissive.B;
+				JsonMaterialValue["emissive_A"] = materialValue.emissive.A;
+				//other
+				JsonMaterialValue["transparency"] = materialValue.transparency;
+				JsonMaterialValue["shininess"] = materialValue.shininess;
+				//
+				JsonIfcObjectMaterial["materialValue"] = JsonMaterialValue;
+				JsonIFCObject["ifcObjectMaterials"].append(JsonIfcObjectMaterial);
 			}
 		}
 

@@ -533,8 +533,8 @@ void	FillIndexBuffers_ifcFaces(STRUCT_MATERIAL_VALUE * mtrl)
 			if (ifcObject->ifcInstance  &&  ifcObject->noVertices  &&  ifcObject->noPrimitivesForFaces  &&  materials->material->MTRL == mtrl) {
 				//sotre STRUCT_IFCOBJECT_MATERIAL informaiton in each ifcObject
 				STRUCT_IFCOBJECT_MATERIAL ifcObjectMaterial(
-					materials->indexArrayPrimitives,
 					thisObjectOffsetForFaces,
+					materials->indexArrayPrimitives,
 					materialValue);
 
 				thisObjectOffsetForFaces += 3 * (int_t)materials->indexArrayPrimitives;

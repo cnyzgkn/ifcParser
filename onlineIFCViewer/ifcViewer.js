@@ -48,80 +48,16 @@ function initLight() {
     scene.add(light);
 }
 
-function initObjectfromJSON() {
-    $.ajaxSettings.async = false; 
-    var num = 1;
-    var readJSON = true;
-    while(readJSON == true)
-    {
-        var fileName = "MeshJson/result" + num.toString() + ".json";
-        $.getJSON(fileName)
-        .done(function(json){
-            $.each(json, function(ifcObjectIndex, ifcObject){ 
-                if(ifcObject["noVertices"] !== 0)
-                {
-                    var geometry = new THREE.Geometry();
-                    
-                    var noVertices = ifcObject["noVertices"];
-                    var vertices = ifcObject["vertices"];
-                    var indicesForFaces = ifcObject["indicesForFaces"];
-                    var noPrimitivesForFaces = ifcObject["noPrimitivesForFaces"];
-                    //vertices
-                    for(let i = 0; i < noVertices; i++)
-                    {
-                        let x = vertices[6*i+0];
-                        let y = vertices[6*i+1];
-                        let z = vertices[6*i+2];
-                        var vertice = new THREE.Vector3(x, y, z);
-                        geometry.vertices.push(vertice);
-                    }
-
-                    //faces
-                    for(let i = 0; i < noPrimitivesForFaces; i++)
-                    {
-                        var face = new THREE.Face3(
-                            indicesForFaces[3*i+0],
-                            indicesForFaces[3*i+1],
-                            indicesForFaces[3*i+2]
-                            );
-                        geometry.faces.push(face);
-                    }
-
-                    for ( var i = 0; i < geometry.faces.length; i++ ) {
-                        geometry.faces[i].color.set(0xFF0000);
-                    }
-
-                    //calculate norm for lighting
-                    geometry.computeFaceNormals();
-                    geometry.computeVertexNormals();
-
-                    var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors} );
-                    var mesh = new THREE.Mesh( geometry,material);
-                    mesh.position = new THREE.Vector3(0,0,0);
-                    scene.add(mesh);
-                    
-                }
-            });
-            num++;
-            //console.log("num == " + num)
-        })
-        .fail(function(jqXHR){
-            //alert(fileName + " doesn't exist!");
-            readJSON = false;
-        });
-    }
-}
-
 function initObjectfromJSONLowMemory() {
     $.ajaxSettings.async = false; 
-    var num = 1;
+    var fileNum = 1;
     var readJSON = true;
     while(readJSON == true)
     {
-        var fileName = "MeshJigui/result" + num.toString() + ".json";
+        var fileName = "MeshJigui/result" + fileNum.toString() + ".json";
         $.getJSON(fileName)
         .done(function(json){
-            $.each(json, function(ifcObjectIndex, ifcObject){ 
+            $.each(json, function(ifcObjectKey, ifcObject){ 
                 if(ifcObject["noVertices"] !== 0)
                 {
                     var geometry = new THREE.Geometry();
@@ -130,6 +66,7 @@ function initObjectfromJSONLowMemory() {
                     var vertices = ifcObject["vertices"];
                     var indicesForFaces = ifcObject["indicesForFaces"];
                     var noPrimitivesForFaces = ifcObject["noPrimitivesForFaces"];
+                    console.log("noPrimitivesForFaces == " + noPrimitivesForFaces);
                     //vertices
                     for(let i = 0; i < noVertices; i++)
                     {
@@ -143,41 +80,109 @@ function initObjectfromJSONLowMemory() {
                         );
                     }
 
+                    //materials
+                    var materials = [];
+                    var ifcObjectMaterials = ifcObject["ifcObjectMaterials"];
+                    var materialIndexArray = [];
+
+                    var index = 0;
+                    $.each(ifcObjectMaterials, function(ifcObjectMaterialKey, ifcObjectMaterial){
+                        var materialIndexElement = 
+                        {
+                            materialIndex: index,
+                            indexArrayPrimitives: ifcObjectMaterial.indexArrayPrimitives,
+                            indexOffsetForFaces: ifcObjectMaterial.indexOffsetForFaces
+                        };
+
+                        /*
+                        console.log("ifcObjectMaterial.materialValue.diffuse_R == " + ifcObjectMaterial.materialValue.diffuse_R);
+                        console.log("ifcObjectMaterial.materialValue.diffuse_G == " + ifcObjectMaterial.materialValue.diffuse_G);
+                        console.log("ifcObjectMaterial.materialValue.diffuse_B == " + ifcObjectMaterial.materialValue.diffuse_B);
+                        console.log("ifcObjectMaterial.materialValue.specular_R == " + ifcObjectMaterial.materialValue.specular_R);
+                        console.log("ifcObjectMaterial.materialValue.specular_G == " + ifcObjectMaterial.materialValue.specular_G);
+                        console.log("ifcObjectMaterial.materialValue.specular_B == " + ifcObjectMaterial.materialValue.specular_B);
+                        console.log("ifcObjectMaterial.materialValue.emissive_R == " + ifcObjectMaterial.materialValue.emissive_R);
+                        console.log("ifcObjectMaterial.materialValue.emissive_G == " + ifcObjectMaterial.materialValue.emissive_G);
+                        console.log("ifcObjectMaterial.materialValue.emissive_B == " + ifcObjectMaterial.materialValue.emissive_B);
+                        */
+
+                        materials.push(new THREE.MeshPhongMaterial(
+                        {
+                            color: new THREE.Color(ifcObjectMaterial.materialValue.diffuse_R, ifcObjectMaterial.materialValue.diffuse_G, ifcObjectMaterial.materialValue.diffuse_B),
+                            specular: new THREE.Color(ifcObjectMaterial.materialValue.specular_R, ifcObjectMaterial.materialValue.specular_G, ifcObjectMaterial.materialValue.specular_B),
+                            emissive: new THREE.Color(ifcObjectMaterial.materialValue.emissive_R, ifcObjectMaterial.materialValue.emissive_G, ifcObjectMaterial.materialValue.emissive_B),
+                            //shininess: ifcObjectMaterial.shininess, 
+                            //transparency: ifcObjectMaterial.transparency==1.0 ? true : false,
+                            shading: THREE.FlatShading
+                        }));
+                        
+                        materialIndexArray.push(materialIndexElement);
+                        ++index;
+                    });
+
+                    /*
                     //faces
                     for(let i = 0; i < noPrimitivesForFaces; i++)
                     {
-                        geometry.faces.push(new THREE.Face3(
+                        var face = new THREE.Face3(
                             indicesForFaces[3*i+0],
                             indicesForFaces[3*i+1],
-                            indicesForFaces[3*i+2])
-                        );
+                            indicesForFaces[3*i+2]
+                            );
+                        geometry.faces.push(face);
+                    }
+                    */
+
+                    //console.log("materials.length ==" + materials.length);
+                    //console.log("materialIndexArray.length ==" + materialIndexArray.length);
+                    //faces
+                    for(let i = 0; i < materials.length; i++)
+                    {
+                        var materialIndexElement = materialIndexArray[i];
+                        /*
+                        console.log("materialIndexElement materialIndex == " + materialIndexElement.materialIndex +
+                            " indexArrayPrimitives " + materialIndexElement.indexArrayPrimitives 
+                            + " indexOffsetForFaces " + materialIndexElement.indexOffsetForFaces);
+                        */
+                        //console.log(i == materialIndexElement.materialIndex);
+                        for(let j = 0; j < materialIndexElement.indexArrayPrimitives; j++)
+                        {
+                            let k = materialIndexElement.indexOffsetForFaces + j;
+                            console.log("i == " + i + " j == " + j + " k == " + k);
+
+                            var face = new THREE.Face3(
+                                indicesForFaces[3*k+0],
+                                indicesForFaces[3*k+1],
+                                indicesForFaces[3*k+2]
+                            );
+                            face.materialIndex = materialIndexElement.materialIndex;
+                            geometry.faces.push(face);
+                        }    
                     }
 
+                    /*
+                    //color
                     for ( var i = 0; i < geometry.faces.length; i++ ) {
                         geometry.faces[i].color.set(0xFF0000);
                     }
+                    */
 
                     //calculate norm for lighting
                     geometry.computeFaceNormals();
                     geometry.computeVertexNormals();
 
-                    var JsonMaterials = ifcObject["materials"];
-                    //console.log(JsonMaterials.length);
-                    var materials = [];
-                    for(let i = 0; i < JsonMaterials.length; i++)
-                    {
-                        var indexArrayOffset = JsonMaterials[i]["indexArrayOffset"];
-                        var indexArrayPrimitives = JsonMaterials[i]["indexArrayPrimitives"];
-                    }
-
                     var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors} );
                     var mesh = new THREE.Mesh( geometry,material);
                     mesh.position = new THREE.Vector3(0,0,0);
-                    scene.add(mesh);       
+                    scene.add(mesh);   
+
+                    console.log("noPrimitivesForFaces == " + noPrimitivesForFaces);
+                    console.log("materials.length ==" + materials.length);
+                    console.log("\n\n\n\n\n\n\n\n");    
                 }
             });
-            num++;
-            //console.log("num == " + num)
+            fileNum++;
+            //console.log("fileNum == " + fileNum)   
         })
         .fail(function(jqXHR){
             //alert(fileName + " doesn't exist!");
