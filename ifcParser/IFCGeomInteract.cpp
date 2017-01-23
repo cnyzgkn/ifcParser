@@ -527,17 +527,16 @@ void	FillIndexBuffers_ifcFaces(STRUCT_MATERIAL_VALUE * mtrl)
 	
 	STRUCT__IFC__OBJECT	* ifcObject = ifcObjectsLinkedList;
 	while (ifcObject) {
-		int_t thisObjectOffsetForFaces = 0;
 		STRUCT_MATERIALS	* materials = ifcObject->materials;
 		while (materials) {
 			if (ifcObject->ifcInstance  &&  ifcObject->noVertices  &&  ifcObject->noPrimitivesForFaces  &&  materials->material->MTRL == mtrl) {
 				//sotre STRUCT_IFCOBJECT_MATERIAL informaiton in each ifcObject
 				STRUCT_IFCOBJECT_MATERIAL ifcObjectMaterial(
-					thisObjectOffsetForFaces,
+					ifcObject->ifcObjectOffsetForFaces,
 					materials->indexArrayPrimitives,
 					materialValue);
 
-				thisObjectOffsetForFaces += 3 * (int_t)materials->indexArrayPrimitives;
+				ifcObject->ifcObjectOffsetForFaces += 3 * (int_t)materials->indexArrayPrimitives;
 				ifcObject->ifcObjectMaterialsVector.push_back(ifcObjectMaterial);
 			}
 			materials = materials->next;

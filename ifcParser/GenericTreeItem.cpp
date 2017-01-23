@@ -41,9 +41,6 @@ STRUCT__IFC__OBJECT	* CreateIfcObject(int_t ifcEntity, int_t ifcInstance, wchar_
 	ifcObject->treeItemGeometry = 0;
 	ifcObject->treeItemProperties = 0;
 
-	ifcObject->noVertices = 0;
-	ifcObject->vertices = 0;
-
 	ifcObject->noPrimitivesForFaces = 0;
 	ifcObject->indicesForFaces = 0;
 	ifcObject->vertexOffsetForFaces = 0;
@@ -53,6 +50,8 @@ STRUCT__IFC__OBJECT	* CreateIfcObject(int_t ifcEntity, int_t ifcInstance, wchar_
 	ifcObject->indicesForLinesWireFrame = 0;
 	ifcObject->vertexOffsetForWireFrame = 0;
 	ifcObject->indexOffsetForWireFrame = 0;
+
+	ifcObject->ifcObjectOffsetForFaces = 0;
 
 	return	ifcObject;
 }

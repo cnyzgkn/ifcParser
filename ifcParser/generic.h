@@ -69,6 +69,7 @@ struct STRUCT__IFC__OBJECT {
 	int_t							vertexOffsetForWireFrame;
 	int_t							indexOffsetForWireFrame;
 
+	int_t							ifcObjectOffsetForFaces;
 	std::vector<STRUCT_IFCOBJECT_MATERIAL>      ifcObjectMaterialsVector;
 };
 

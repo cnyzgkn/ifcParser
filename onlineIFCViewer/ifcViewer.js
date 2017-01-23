@@ -120,6 +120,8 @@ function initObjectfromJSONLowMemory() {
                         ++index;
                     });
 
+                    console.log("materials.length == " + materials.length);
+
                     /*
                     //faces
                     for(let i = 0; i < noPrimitivesForFaces; i++)
@@ -133,8 +135,7 @@ function initObjectfromJSONLowMemory() {
                     }
                     */
 
-                    //console.log("materials.length ==" + materials.length);
-                    //console.log("materialIndexArray.length ==" + materialIndexArray.length);
+                    
                     //faces
                     for(let i = 0; i < materials.length; i++)
                     {
@@ -144,11 +145,11 @@ function initObjectfromJSONLowMemory() {
                             " indexArrayPrimitives " + materialIndexElement.indexArrayPrimitives 
                             + " indexOffsetForFaces " + materialIndexElement.indexOffsetForFaces);
                         */
-                        //console.log(i == materialIndexElement.materialIndex);
+                        console.log("max index == " + 3*(materialIndexElement.indexOffsetForFaces + materialIndexElement.indexArrayPrimitives -1) + 2);
                         for(let j = 0; j < materialIndexElement.indexArrayPrimitives; j++)
                         {
                             let k = materialIndexElement.indexOffsetForFaces + j;
-                            console.log("i == " + i + " j == " + j + " k == " + k);
+                            //console.log("i == " + i + " j == " + j + " k == " + k);
 
                             var face = new THREE.Face3(
                                 indicesForFaces[3*k+0],
@@ -171,13 +172,13 @@ function initObjectfromJSONLowMemory() {
                     geometry.computeFaceNormals();
                     geometry.computeVertexNormals();
 
-                    var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors} );
-                    var mesh = new THREE.Mesh( geometry,material);
+                    var multiMaterials = new THREE.MultiMaterial(materials);
+                    var mesh = new THREE.Mesh(geometry, multiMaterials);
                     mesh.position = new THREE.Vector3(0,0,0);
                     scene.add(mesh);   
 
                     console.log("noPrimitivesForFaces == " + noPrimitivesForFaces);
-                    console.log("materials.length ==" + materials.length);
+                    console.log("materials.length == " + materials.length);
                     console.log("\n\n\n\n\n\n\n\n");    
                 }
             });
@@ -220,7 +221,7 @@ function rotateProperty()
 function animation()
 {
     renderer.render(scene, camera);
-    //requestAnimationFrame(animation);
+    requestAnimationFrame(animation);
     //stats.update();
 }
 
