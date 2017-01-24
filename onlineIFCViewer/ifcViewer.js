@@ -9,7 +9,7 @@ function initThree() {
     });
     renderer.setSize(width, height);
     document.getElementById('canvas-frame').appendChild(renderer.domElement);
-    renderer.setClearColor(0xFFFFFF, 1.0);
+    renderer.setClearColor(0x000000, 1.0);
 
     /*
     stats = new Stats();
@@ -22,10 +22,10 @@ function initThree() {
 
 var camera;
 function initCamera() {
-    camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000000);
-    camera.position.x = 10000;
-    camera.position.y = 10000;
-    camera.position.z = 10000;
+    camera = new THREE.PerspectiveCamera(45, width / height, 1, 2000000);
+    camera.position.x = -400;
+    camera.position.y = -400;
+    camera.position.z = -200;
     camera.up.x = 1;
     camera.up.y = 1;
     camera.up.z = 1;
@@ -43,9 +43,19 @@ function initScene() {
 
 var light;
 function initLight() {
-    light = new THREE.AmbientLight(0xFF0000);
-    light.position.set(100000, 100000, 100000);
+    //ambient light
+    light = new THREE.AmbientLight(0xFFFFFF);
+    light.position.set(20000, 20000, 20000);
     scene.add(light);
+
+    //sun light
+    var directionalLight1 = new THREE.DirectionalLight(0xFFFFFF, 1);
+    directionalLight1.position.set(1, 1.5, 1);
+    this.scene.add(directionalLight1);
+
+    var directionalLight2 = new THREE.DirectionalLight(0xFFFFFF, 1);
+    directionalLight2.position.set(-1, -1.5, -1);
+    this.scene.add(directionalLight2);
 }
 
 function initObjectfromJSONLowMemory() {
@@ -66,7 +76,7 @@ function initObjectfromJSONLowMemory() {
                     var vertices = ifcObject["vertices"];
                     var indicesForFaces = ifcObject["indicesForFaces"];
                     var noPrimitivesForFaces = ifcObject["noPrimitivesForFaces"];
-                    console.log("noPrimitivesForFaces == " + noPrimitivesForFaces);
+                    //console.log("noPrimitivesForFaces == " + noPrimitivesForFaces);
                     //vertices
                     for(let i = 0; i < noVertices; i++)
                     {
@@ -106,21 +116,37 @@ function initObjectfromJSONLowMemory() {
                         console.log("ifcObjectMaterial.materialValue.emissive_B == " + ifcObjectMaterial.materialValue.emissive_B);
                         */
 
+                        
                         materials.push(new THREE.MeshPhongMaterial(
+                        {
+                            color: new THREE.Color(ifcObjectMaterial.materialValue.diffuse_R, ifcObjectMaterial.materialValue.diffuse_G, ifcObjectMaterial.materialValue.diffuse_B),
+                            //color: 0xFFFFFF,
+                            specular: new THREE.Color(ifcObjectMaterial.materialValue.specular_R, ifcObjectMaterial.materialValue.specular_G, ifcObjectMaterial.materialValue.specular_B),
+                            emissive: new THREE.Color(ifcObjectMaterial.materialValue.emissive_R, ifcObjectMaterial.materialValue.emissive_G, ifcObjectMaterial.materialValue.emissive_B),
+                            //shininess: ifcObjectMaterial.shininess, 
+                            //transparency: ifcObjectMaterial.transparency==1.0 ? true : false,
+                            shading: THREE.SmoothShading,
+                            side: THREE.DoubleSide
+                        }));
+
+                        /*
+                        materials.push(new THREE.MeshLambertMaterial(
                         {
                             color: new THREE.Color(ifcObjectMaterial.materialValue.diffuse_R, ifcObjectMaterial.materialValue.diffuse_G, ifcObjectMaterial.materialValue.diffuse_B),
                             specular: new THREE.Color(ifcObjectMaterial.materialValue.specular_R, ifcObjectMaterial.materialValue.specular_G, ifcObjectMaterial.materialValue.specular_B),
                             emissive: new THREE.Color(ifcObjectMaterial.materialValue.emissive_R, ifcObjectMaterial.materialValue.emissive_G, ifcObjectMaterial.materialValue.emissive_B),
                             //shininess: ifcObjectMaterial.shininess, 
                             //transparency: ifcObjectMaterial.transparency==1.0 ? true : false,
-                            shading: THREE.FlatShading
+                            shading: THREE.SmoothShading,
+                            side: THREE.DoubleSide
                         }));
+                        */
                         
                         materialIndexArray.push(materialIndexElement);
                         ++index;
                     });
 
-                    console.log("materials.length == " + materials.length);
+                    //console.log("materials.length == " + materials.length);
 
                     /*
                     //faces
@@ -144,21 +170,23 @@ function initObjectfromJSONLowMemory() {
                         console.log("materialIndexElement materialIndex == " + materialIndexElement.materialIndex +
                             " indexArrayPrimitives " + materialIndexElement.indexArrayPrimitives 
                             + " indexOffsetForFaces " + materialIndexElement.indexOffsetForFaces);
-                        */
                         console.log("max index == " + 3*(materialIndexElement.indexOffsetForFaces + materialIndexElement.indexArrayPrimitives -1) + 2);
+                        */
                         for(let j = 0; j < materialIndexElement.indexArrayPrimitives; j++)
                         {
-                            let k = materialIndexElement.indexOffsetForFaces + j;
-                            //console.log("i == " + i + " j == " + j + " k == " + k);
+                            let k = materialIndexElement.indexOffsetForFaces + j*3;
+                            //console.log("i == " + i + " j*3 == " + j*3 + " k == " + k);
 
                             var face = new THREE.Face3(
-                                indicesForFaces[3*k+0],
-                                indicesForFaces[3*k+1],
-                                indicesForFaces[3*k+2]
+                                indicesForFaces[k+0],
+                                indicesForFaces[k+1],
+                                indicesForFaces[k+2]
                             );
                             face.materialIndex = materialIndexElement.materialIndex;
+                            //console.log("i == " + i + " materialIndexElement.materialIndex == " + materialIndexElement.materialIndex);
                             geometry.faces.push(face);
                         }    
+                        //console.log("\n\n");   
                     }
 
                     /*
@@ -177,9 +205,9 @@ function initObjectfromJSONLowMemory() {
                     mesh.position = new THREE.Vector3(0,0,0);
                     scene.add(mesh);   
 
-                    console.log("noPrimitivesForFaces == " + noPrimitivesForFaces);
-                    console.log("materials.length == " + materials.length);
-                    console.log("\n\n\n\n\n\n\n\n");    
+                    //console.log("noPrimitivesForFaces == " + noPrimitivesForFaces);
+                    //console.log("materials.length == " + materials.length);
+                    //console.log("\n\n\n\n\n\n\n\n");    
                 }
             });
             fileNum++;
