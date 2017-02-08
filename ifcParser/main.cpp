@@ -88,7 +88,7 @@ int main(int argc, char** argv)
 	delete[] ifcFileName;
 
 	//DumpIfcObjects2Json("result.json");
-	DumpIfcObjects2SeperateJson("..\\onlineIFCViewer\\MeshJigui\\result");
+	DumpIfcObjects2SeperateJson("..\\onlineIFCViewer\\MeshJiguiFinal\\result");
 
 	return 1;
 }
