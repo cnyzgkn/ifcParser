@@ -22,10 +22,10 @@ function initThree() {
 
 var camera;
 function initCamera() {
-    camera = new THREE.PerspectiveCamera(45, width / height, 1, 2000000);
-    camera.position.x = -400;
-    camera.position.y = -400;
-    camera.position.z = -200;
+    camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000000);
+    camera.position.x = 30000;
+    camera.position.y = 30000;
+    camera.position.z = 30000;
     camera.up.x = 1;
     camera.up.y = 1;
     camera.up.z = 1;
@@ -45,7 +45,7 @@ var light;
 function initLight() {
     //ambient light
     light = new THREE.AmbientLight(0xFFFFFF);
-    light.position.set(20000, 20000, 20000);
+    light.position.set(300000, 300000, 300000);
     scene.add(light);
 
     //sun light
@@ -64,7 +64,7 @@ function initObjectfromJSONLowMemory() {
     var readJSON = true;
     while(readJSON == true)
     {
-        var fileName = "MeshJigui/result" + fileNum.toString() + ".json";
+        var fileName = "MeshJiguiFinal/result" + fileNum.toString() + ".json";
         $.getJSON(fileName)
         .done(function(json){
             $.each(json, function(ifcObjectKey, ifcObject){ 
@@ -225,6 +225,7 @@ function threeStart() {
     initCamera();
     initScene();
     initLight();
+    console.log("load json files success!");
     initObjectfromJSONLowMemory();
     animation();
 }
@@ -249,7 +250,7 @@ function rotateProperty()
 function animation()
 {
     renderer.render(scene, camera);
-    requestAnimationFrame(animation);
+    //requestAnimationFrame(animation);
     //stats.update();
 }
 
